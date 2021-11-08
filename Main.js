@@ -14,11 +14,11 @@ symbols:
 ] - pop position and rotate -theta degrees
 +/- - increment/decrement size
 Binary tree rules:
-1 -> 11
+1 -> +11-
 0 -> 1[0]0
 */
 
-let theta = Math.PI/4;
+let theta = Math.PI/8;
 let scale = 50;
 
 function setContextPosition(position){
@@ -32,7 +32,7 @@ function symOne(position){//draw line segment
     context.beginPath();
     context.moveTo(0,0);
     context.strokeStyle = "brown";
-    context.lineTo(0,scale);
+    context.lineTo(0,scale+1);
     context.stroke();
     position.x -= Math.sin(position.theta)*scale
     position.y += Math.cos(position.theta)*scale;
@@ -46,7 +46,6 @@ function symZero(position){//draw line segment ending in leaf
     context.lineTo(0,scale);
     context.stroke();
     //context.strokeStyle = "green";
-    //may have to translate here
     context.translate(0,scale);
     context.moveTo(0,0);
     context.beginPath();
@@ -55,6 +54,16 @@ function symZero(position){//draw line segment ending in leaf
     context.fill();
     position.x -= Math.sin(position.theta)*scale
     position.y += Math.cos(position.theta)*scale;
+}
+
+function symPlus(position){
+    position.size = position.size+5;
+    context.lineWidth = position.size;
+}
+
+function symMinus(position){
+    position.size = position.size-5;
+    context.lineWidth = position.size;
 }
 
 function symBracket(queue,position){
@@ -70,10 +79,11 @@ function symCloseBracket(queue){
 
 let position = {};
 let queue = [];
+position.size = 1;
 
 reset();
 
-context.lineWidth = 1;
+context.lineWidth = position.size;
 
 function parseString(string){
     for(let i=0; i<string.length; i++){
@@ -89,6 +99,13 @@ function parseString(string){
                 break;
             case '0':
                 symZero(position);
+                break;
+            case '+':
+                symPlus(position);
+                break;
+            case '-':
+                symMinus(position);
+                break;
             default:
                 break;
         }
@@ -100,7 +117,7 @@ function iterateString(string){
     for(let i=0; i<string.length; i++){
         switch(string[i]){
             case '1':
-                newstring += '11';
+                newstring += '+11-';
                 break;
             case '0':
                 newstring += '1[0]0';
@@ -112,6 +129,7 @@ function iterateString(string){
     }
     return newstring;
 }
+
 let string = '0';
 parseString(string);
 
@@ -123,12 +141,21 @@ function reset(){
     position.x = width/2;
     position.y = 0.9*height;
     position.theta = Math.PI;
+    position.size = 1;
 }
 
+let generation = 0;
+
 window.onkeydown = (event)=>{
-    scale = scale/1.5
+    generation++;
+    scale = scale/1.5;
     string = iterateString(string);
     reset();
     parseString(string);
+    console.log(string);
+    console.log(generation)
+    if(generation>7){
+        location.reload();
+    }
 };
 
